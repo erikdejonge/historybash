@@ -9,7 +9,7 @@ license: GNU-GPL2
 
 from setuptools import setup
 setup(name='historybash',
-      version='7',
+      version='8',
       description='Bash history command colorized on levenshtein distance of last 10 commands',
       url='https://github.com/erikdejonge/historybash',
       author='Erik de Jonge',
@@ -18,12 +18,13 @@ setup(name='historybash',
       scripts=['historybash/hist'],
       packages=['historybash'],
       zip_safe=True,
-      install_requires=['python-Levenshtein'],
+      install_requires=['python-Levenshtein', 'docopt'],
       classifiers=[
           "Programming Language :: Python :: 3",
           "Development Status :: 4 - Beta ",
           "Intended Audience :: Developers",
           "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)",
           "Operating System :: POSIX",
+          "Environment :: MacOS X",
           "Topic :: System",
       ])
