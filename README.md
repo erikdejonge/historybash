@@ -20,4 +20,4 @@ alias hist='python ~/workspace/history/history.py'
   
 
 ###screenshot
-![history](https://raw.githubusercontent.com/erikdejonge/history/master/res/history.png)
+![history](https://raw.githubusercontent.com/erikdejonge/historybash/master/res/history.png)
