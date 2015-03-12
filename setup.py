@@ -15,7 +15,11 @@ setup(name='historybash',
       author='Erik de Jonge',
       author_email='erik@a8.nl',
       license='GPL',
-      scripts=['historybash/hist'],
+      entry_points={
+          'console_scripts': [
+              'hist=historybash:main',
+          ],
+      },
       packages=['historybash'],
       zip_safe=True,
       install_requires=['python-Levenshtein', 'docopt'],
