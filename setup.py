@@ -22,7 +22,7 @@ setup(name='historybash',
       },
       packages=['historybash'],
       zip_safe=True,
-      install_requires=['python-Levenshtein', 'docopt'],
+      #install_requires=['python-Levenshtein', 'docopt'],
       classifiers=[
           "Programming Language :: Python :: 3",
           "Development Status :: 4 - Beta ",
