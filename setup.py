@@ -9,7 +9,7 @@ license: GNU-GPL2
 
 from setuptools import setup
 setup(name='historybash',
-      version='21',
+      version='22',
       description='Bash history command colorized on levenshtein distance of last 10 commands',
       url='https://github.com/erikdejonge/historybash',
       author='Erik de Jonge',
