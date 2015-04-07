@@ -104,7 +104,7 @@ def main():
             elif command in prev_cmds_parsed[len(prev_cmds_parsed) // 2:]:
                 print("\033[30m" + command, "\033[0m")  # , dist, diff, m.hexdigest() not in st
             else:
-                if len(command) > 100:
+                if len(command) > 160:
                     cmdt = ""
                     cnt = 0
 
