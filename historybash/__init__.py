@@ -4,21 +4,18 @@
 history.py
 
 Usage:
-  history.py [<keyword> <limitnum>]
+  history.py [options] [<keyword> <limitnum>]
 
 Options:
-  -h --help             Show this screen.
+  -p --pid   Show process ids
+  -h --help  Show this screen.
 """
-
-# Erik de Jonge
-# erik@a8.nl
-# license: gpl2
-
-import hashlib
 import docopt
-from subprocess import Popen, PIPE, STDOUT
+import hashlib
+
 from Levenshtein import distance
 from collections import deque
+from subprocess import PIPE, Popen, STDOUT
 
 
 def get_distance(command, previous_command):
@@ -37,6 +34,7 @@ def main():
     main
     """
     arguments = docopt.docopt(__doc__)
+    showpid = arguments["--pid"]
     limitnum = arguments["<limitnum>"]
     keyword = arguments["<keyword>"]
 
@@ -51,7 +49,7 @@ def main():
 
     event = Popen(shell_command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     sto, ste = event.communicate()
-    sto = sto.decode("utf-8")
+    sto = sto.decode()
     previous_command = ""
     prev_cmds = deque()
     stl = str(sto).split("\n")
@@ -61,48 +59,42 @@ def main():
             limitnum = int(limitnum)
             stl = stl[len(stl) - limitnum:]
 
-    colorize_from = len(stl) - 40
+    colorize_from = 0
     if colorize_from < 0:
         colorize_from = 0
 
     hist_item_cnt = 0
 
-    for history_item in stl:
+    print(len(stl))
+
+    for cnt, history_item in enumerate(stl):
         hist_item_cnt += 1
 
         if len(history_item.strip()) > 0:
             m = hashlib.md5()
-            m.update(str(history_item.split(" ")[4:][0]).encode())
+            hil = history_item.lstrip().split(" ")
+            m.update(str(hil[1:][0]).encode())
 
             # if m.hexdigest() not in st:
-            command = " ".join(history_item.split(" ")[4:]).strip()
-            num = " ".join(history_item.split(" ")[:4]).strip()
+            command = " ".join(history_item.lstrip().split(" ")[1:]).strip()
+            num = " ".join(history_item.lstrip().split(" ")[:1]).strip()
             dist, diff = get_distance(command, previous_command)
+            maxdist = 6
 
-            for prevcmd in prev_cmds:
-                dist2, diff2 = get_distance(command, prevcmd)
+            if len(command) < maxdist + 1:
+                maxdist = len(command) // 2
 
-                if dist2 < dist:
-                    dist = dist2
-                    diff = diff2
+            if "".join(command.split()[:2]) in prev_cmds:
+                if prev_cmds.count("".join(command.split()[:3])) < 2:
+                    print_item(num, command, showpid, 30)
 
-            maxdist = 3
+                # if prev_cmds.count(command.split()[:3]) < 6:
+                #    print_item(num, command, showpid, 90)
+                else:
+                    pass
 
-            if len(command) < maxdist:
-                maxdist = len(command)
-                dist += 1
-
-            prev_cmds_digest = [hashlib.md5(str(x.split(" ")[4:][0]).encode()).hexdigest() for x in prev_cmds if len(x.split(" ")) > 4]
-
-            # print dist, maxdist, m.hexdigest(), prev_cmds_digest
-            prev_cmds_parsed = [" ".join(x.split(" ")[4:]) for x in prev_cmds if len(x.split(" ")) > 4]
-
-            # print command, prev_cmds_parsed[len(prev_cmds_parsed)//2:]
-
-            if dist < maxdist:
-                print("\033[90m" + command, "\033[0m")
-            elif command in prev_cmds_parsed[len(prev_cmds_parsed) // 2:]:
-                print("\033[30m" + command, "\033[0m")  # , dist, diff, m.hexdigest() not in st
+            elif 0 < dist < maxdist:
+                print_item(num, command, showpid, 90)
             else:
                 if len(command) > 160:
                     cmdt = ""
@@ -114,20 +106,45 @@ def main():
                             cmdt += "\\\n"
 
                         cmdt += command_item
-                        #cmdt += " "
+
+                        # cmdt += " "
                         cnt += 1
 
                     command = cmdt.replace("\t  \\\n", "")
-
-                print("\033[33m" + command, "\033[0m")  # , dist, diff, m.hexdigest()
+                    print_item(num, command, showpid, 93)
+                else:
+                    print_item(num, command, showpid, 93)
 
             previous_command = command
 
-            while len(prev_cmds) > 30:
+            while len(prev_cmds) > 10:
                 prev_cmds.popleft()
 
             if hist_item_cnt > colorize_from:
-                prev_cmds.append(history_item)
+                prev_cmds.append("".join(command.split()[:2]))
+
+
+def print_item(pid, command, showpid, colorcode):
+    """
+    @type pid: str
+    @type command: str
+    @type showpid: bool
+    @type colorcode: int
+    @return: None
+    """
+    pidcolor = 37
+    if colorcode != 93:
+        pidcolor = 90
+
+    if showpid is True:
+        print("\033[" + str(pidcolor) + "m" + str(pid) + "  \033[" + str(colorcode) + "m" + command, "\033[0m")
+    else:
+        print("\033[" + str(colorcode) + "m" + command, "\033[0m")
+
+# Erik de Jonge
+# erik@a8.nl
+
+# license: gpl2
 
 
 if __name__ == "__main__":
