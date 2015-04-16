@@ -46,7 +46,7 @@ def main():
 
     if keyword:
         shell_command = 'bash -i -c "history -r; history|grep ' + keyword + '"'
-
+    print(shell_command)
     event = Popen(shell_command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     sto, ste = event.communicate()
     sto = sto.decode()
