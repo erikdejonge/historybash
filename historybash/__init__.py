@@ -85,7 +85,7 @@ def main():
                 maxdist = len(command) // 2
 
             if "".join(command.split()[:2]) in prev_cmds:
-                if prev_cmds.count("".join(command.split()[:3])) < 2:
+                if prev_cmds.count("".join(command.split()[:2])) < 2:
                     print_item(num, command, showpid, 30)
 
                 # if prev_cmds.count(command.split()[:3]) < 6:
