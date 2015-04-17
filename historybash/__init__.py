@@ -46,7 +46,6 @@ def main():
 
     if keyword:
         shell_command = 'bash -i -c "history -r; history|grep ' + keyword + '"'
-    print(shell_command)
     event = Popen(shell_command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     sto, ste = event.communicate()
     sto = sto.decode()
@@ -64,8 +63,6 @@ def main():
         colorize_from = 0
 
     hist_item_cnt = 0
-
-    print(len(stl))
 
     for cnt, history_item in enumerate(stl):
         hist_item_cnt += 1
