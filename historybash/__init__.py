@@ -7,7 +7,7 @@ Usage:
   history.py [options] [<keyword> <limitnum>]
 
 Options:
-  -p --pid   Show process ids
+  -i --id   Show id
   -h --help  Show this screen.
 """
 import docopt
@@ -34,7 +34,7 @@ def main():
     main
     """
     arguments = docopt.docopt(__doc__)
-    showpid = arguments["--pid"]
+    showid = arguments["--id"]
     limitnum = arguments["<limitnum>"]
     keyword = arguments["<keyword>"]
 
@@ -83,15 +83,15 @@ def main():
 
             if "".join(command.split()[:2]) in prev_cmds:
                 if prev_cmds.count("".join(command.split()[:2])) < 2:
-                    print_item(num, command, showpid, 30)
+                    print_item(num, command, showid, 30)
 
                 # if prev_cmds.count(command.split()[:3]) < 6:
-                #    print_item(num, command, showpid, 90)
+                #    print_item(num, command, showid, 90)
                 else:
                     pass
 
             elif 0 < dist < maxdist:
-                print_item(num, command, showpid, 90)
+                print_item(num, command, showid, 90)
             else:
                 if len(command) > 160:
                     cmdt = ""
@@ -108,9 +108,9 @@ def main():
                         cnt += 1
 
                     command = cmdt.replace("\t  \\\n", "")
-                    print_item(num, command, showpid, 93)
+                    print_item(num, command, showid, 93)
                 else:
-                    print_item(num, command, showpid, 93)
+                    print_item(num, command, showid, 93)
 
             previous_command = command
 
@@ -121,20 +121,20 @@ def main():
                 prev_cmds.append("".join(command.split()[:2]))
 
 
-def print_item(pid, command, showpid, colorcode):
+def print_item(id, command, showid, colorcode):
     """
-    @type pid: str
+    @type id: str
     @type command: str
-    @type showpid: bool
+    @type showid: bool
     @type colorcode: int
     @return: None
     """
-    pidcolor = 37
+    idcolor = 37
     if colorcode != 93:
-        pidcolor = 90
+        idcolor = 90
 
-    if showpid is True:
-        print("\033[" + str(pidcolor) + "m" + str(pid) + "  \033[" + str(colorcode) + "m" + command, "\033[0m")
+    if showid is True:
+        print("\033[" + str(idcolor) + "m" + str(id) + "  \033[" + str(colorcode) + "m" + command, "\033[0m")
     else:
         print("\033[" + str(colorcode) + "m" + command, "\033[0m")
 
