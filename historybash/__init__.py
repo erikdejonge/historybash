@@ -41,16 +41,25 @@ def main():
     if keyword:
         if len(keyword) == 0:
             keyword = None
+    start = 0
+    if showid is True:
+        flags = "-i -l -c"
+        start = 4
+    else:
 
-    shell_command = 'bash -i -c "history -r; history"'
+        flags = "-i -c"
+
+    shell_command = 'bash ' + flags + ' "history -r; history"'
 
     if keyword:
-        shell_command = 'bash -i -c "history -r; history|grep ' + keyword + '"'
+        shell_command = 'bash ' + flags + ' "history -r; history|grep ' + keyword + '"'
+
     event = Popen(shell_command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT)
     sto, ste = event.communicate()
     sto = sto.decode()
     previous_command = ""
     prev_cmds = deque()
+
     stl = str(sto).split("\n")
 
     if limitnum is not None:
@@ -67,9 +76,10 @@ def main():
     for cnt, history_item in enumerate(stl):
         hist_item_cnt += 1
 
-        if len(history_item.strip()) > 0:
+        if len(history_item.strip()) > 0 and hist_item_cnt > start:
             m = hashlib.md5()
             hil = history_item.lstrip().split(" ")
+
             m.update(str(hil[1:][0]).encode())
 
             # if m.hexdigest() not in st:
@@ -119,7 +129,6 @@ def main():
 
             if hist_item_cnt > colorize_from:
                 prev_cmds.append("".join(command.split()[:2]))
-
 
 def print_item(id, command, showid, colorcode):
     """
