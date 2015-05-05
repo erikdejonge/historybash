@@ -20,7 +20,7 @@ import docopt
 import stat
 from Levenshtein import distance
 
-
+from consoleprinter import forceascii
 def get_distance(command, previous_command):
     """
     @type command: str, unicode
@@ -55,7 +55,8 @@ def main():
 
     previous_command = ""
     prev_cmds = deque()
-    sto = open(os.path.join(os.path.expanduser("~"), ".bash_history")).read()
+    sto = open(os.path.join(os.path.expanduser("~"), ".bash_history"), "rt").read()
+
     stl = str(sto).split("\n")
 
     if limitnum is not None:
