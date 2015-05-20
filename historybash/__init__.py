@@ -155,7 +155,7 @@ def main():
                         print_item(num, command, showid, 37)
                     else:
                         samecnt = 0
-                        print_item(num, command, showid, 93)
+                        print_item(num, command, showid, 33)
 
                     previous_command = command
 
