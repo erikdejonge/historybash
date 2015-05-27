@@ -4,6 +4,7 @@
 History bash command search wrapper
 Erik de Jonge
 erik@a8.nl
+
 license: gpl2
 
 Usage:
@@ -12,6 +13,7 @@ Usage:
 Options:
   -i --id       Show id
   -r --run      Run id
+
   -h --help     Show this screen.
   -l --limitnum Limit results
 """
@@ -34,7 +36,14 @@ def get_distance(command, previous_command):
     @type previous_command: str, unicode
     @return: None
     """
+    previous_command = previous_command.strip()
+    command = command.strip()
+    # print("----")
+    # print(previous_command)
+    # print(command)
     dist = distance(previous_command, command)
+    # print(dist)
+    # print("----")
     diff = len(command) - len(previous_command)
     return dist, diff
 
@@ -51,10 +60,17 @@ def print_item(mid, command, showmid, colorcode):
     if colorcode != 93:
         midcolor = 90
 
-    if showmid is True:
-        print("\033[" + str(midcolor) + "m" + str(mid) + "  \033[" + str(colorcode) + "m" + command, "\033[0m")
+    maxlen = 500
+
+    if len(command) >= maxlen:
+        command2 = command[:maxlen] + "..." + str(len(command) - maxlen)
     else:
-        print("\033[" + str(colorcode) + "m" + command, "\033[0m")
+        command2 = command
+
+    if showmid is True:
+        print("\033[" + str(midcolor) + "m" + str(mid) + "  \033[" + str(colorcode) + "m" + command2, "\033[0m")
+    else:
+        print("\033[" + str(colorcode) + "m" + command2, "\033[0m")
 
 
 def main():
@@ -123,48 +139,69 @@ def main():
         for cnt, history_item in enumerate(stl):
             if len(history_item.strip()) > 0:
                 hcnt += 1
-                m = hashlib.md5()
-                hil = history_item.lstrip().split(" ")
-                m.update(str(hil[0:][0]).encode())
+                previous_command = handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cmds, previous_command, runid, samecnt, showid)
 
-                # if m.hexdigest() not in st:
-                command = " ".join(history_item.lstrip().split(" ")).strip()
 
-                if keyword is not None and runid is False:
-                    if keyword not in command:
-                        command = ""
+def handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cmds, previous_command, runid, samecnt, showid):
+    """
+    @type cnt: int
+    @type colorize_from: str
+    @type hcnt: int
+    @type history_item: str
+    @type keyword: str
+    @type prev_cmds: list
+    @type previous_command: str
+    @type runid: str
+    @type samecnt: int
+    @type showid: str
+    @return: None
+    """
+    m = hashlib.md5()
+    hil = history_item.lstrip().split(" ")
+    m.update(str(hil[0:][0]).encode())
 
-                if len(command.strip()) > 0:
-                    num = str(hcnt)
-                    dist, diff = get_distance(command, previous_command)
-                    maxdist = 6
+    # if m.hexdigest() not in st:
+    command = " ".join(history_item.lstrip().split(" ")).strip()
 
-                    if len(command) < maxdist + 1:
-                        maxdist = len(command) // 2
+    if keyword is not None and runid is False:
+        if keyword not in command:
+            command = ""
 
-                    if " ".join(command.split()[:1]) in prev_cmds:
+    command = command.strip()
+    previous_command = previous_command.strip()
 
-                        samecnt += 1
-                        if samecnt == 2:
-                            print("\033[90m...\033[0m")
-                        elif samecnt < 2:
-                            print_item(num, command, showid, 90)
+    if len(command.strip()) > 0:
+        num = str(hcnt)
+        dist, _ = get_distance(command, previous_command)
+        maxdist = 6
 
-                    elif 0 < dist < maxdist:
-                        samecnt = 0
-                        print_item(num, command, showid, 37)
-                    else:
-                        samecnt = 0
-                        print_item(num, command, showid, 33)
+        if len(command) < maxdist + 1:
+            maxdist = len(command) // 2
 
-                    previous_command = command
 
-                    while len(prev_cmds) > 10:
-                        prev_cmds.popleft()
+        if " ".join(command.split()[:1]) in prev_cmds:
+            samecnt += 1
+            if samecnt == 2:
+                print("\033[90m...\033[0m")
+            elif samecnt < 2:
+                print_item(num, command, showid, 90)
 
-                    if cnt > colorize_from:
-                        prev_cmds.append("".join(command.split()[:2]))
+        elif 0 < dist < maxdist:
+            samecnt = 0
+            print_item(num, command, showid, 37)
+        else:
+            samecnt = 0
+            print_item(num, command, showid, 33)
 
+        previous_command = command
+
+        while len(prev_cmds) > 10:
+            prev_cmds.popleft()
+
+        if cnt > colorize_from:
+            prev_cmds.append("".join(command.split()[:2]))
+
+    return previous_command
 
 if __name__ == "__main__":
     main()
