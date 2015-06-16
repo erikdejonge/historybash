@@ -6,16 +6,9 @@ Active8 (04-03-15)
 author: erik@a8.nl
 license: GNU-GPL2
 """
-from __future__ import unicode_literals
-from __future__ import print_function
-from __future__ import division
-from __future__ import absolute_import
-from future import standard_library
-standard_library.install_aliases()
-
 from setuptools import setup
 setup(name='historybash',
-      version='54',
+      version='55',
       description='Bash history command colorized on levenshtein distance of last 10 commands',
       url='https://github.com/erikdejonge/historybash',
       author='Erik de Jonge',
@@ -26,7 +19,7 @@ setup(name='historybash',
               'hist=historybash:main',
           ],
       },
-      packages=[b'historybash'],
+      packages=['historybash'],
       zip_safe=True,
       install_requires=['python-Levenshtein', 'docopt', 'ujson', 'consoleprinter', 'future'],
       classifiers=[

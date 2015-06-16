@@ -20,7 +20,7 @@ setup(name='historybash',
               'hist=historybash:main',
           ],
       },
-      packages=[b'historybash'],
+      packages=['historybash'],
       zip_safe=True,
       install_requires=['python-Levenshtein', 'docopt', 'ujson', 'consoleprinter', 'future'],
       classifiers=[
