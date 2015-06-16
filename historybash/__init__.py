@@ -22,11 +22,9 @@ import hashlib
 from collections import deque
 
 import os
-import docopt
-import stat
 
 from Levenshtein import distance
-from consoleprinter import forceascii
+
 from arguments import Arguments
 
 
