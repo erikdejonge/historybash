@@ -62,6 +62,10 @@ def print_item(mid, command, showmid, colorcode):
     @type colorcode: int
     @return: None
     """
+    command = command.replace("    ", " ")
+    command = command.replace("   ", " ")
+    command = command.replace("  ", " ")
+
     midcolor = 37
     if colorcode != 93:
         midcolor = 90
@@ -106,8 +110,16 @@ def main():
     previous_command = ""
     prev_cmds = deque()
     sto = open(os.path.join(os.path.expanduser("~"), ".bash_history"), "rt").read()
-    stl = str(sto).split("\n")
+    newstl = []
 
+    stl = []
+    for hi in str(sto).split("\n"):
+        stl.append(hi)
+
+    for hi in stl:
+        if hi not in newstl:
+            newstl.append(hi)
+    stl = newstl
     if limitnum is not None:
         limitnum = int(limitnum)
         stl = stl[len(stl) - limitnum:]
@@ -179,18 +191,17 @@ def handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cm
     if len(command.strip()) > 0:
         num = str(hcnt)
         dist, _ = get_distance(command, previous_command)
-        maxdist = 6
+        maxdist = 15
 
         if len(command) < maxdist + 1:
             maxdist = len(command) // 2
-
 
         if " ".join(command.split()[:1]) in prev_cmds:
             samecnt += 1
             if samecnt == 2:
                 print("\033[90m...\033[0m")
             elif samecnt < 2:
-                print_item(num, command, showid, 90)
+                print_item(num, command, showid, 93)
 
         elif 0 < dist < maxdist:
             samecnt = 0
