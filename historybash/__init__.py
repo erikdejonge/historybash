@@ -13,27 +13,19 @@ Usage:
 Options:
   -i --id       Show id
   -r --run      Run id
+
   -h --help     Show this screen.
   -l --limitnum Limit results
 """
-from __future__ import print_function
-from __future__ import unicode_literals
-from __future__ import division
-from __future__ import absolute_import
-from builtins import open
-from builtins import int
+from __future__ import division, print_function, absolute_import, unicode_literals
 from future import standard_library
-standard_library.install_aliases()
-from builtins import str
-import hashlib
-
-from collections import deque
 
 import os
-
-from Levenshtein import distance
+import hashlib
 
 from arguments import Arguments
+from Levenshtein import distance
+from collections import deque
 
 
 def get_distance(command, previous_command):
@@ -44,14 +36,80 @@ def get_distance(command, previous_command):
     """
     previous_command = previous_command.strip()
     command = command.strip()
+
     # print("----")
     # print(previous_command)
     # print(command)
     dist = distance(previous_command, command)
+
     # print(dist)
     # print("----")
     diff = len(command) - len(previous_command)
+
     return dist, diff
+
+
+def handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cmds, previous_command, runid, samecnt, showid, defcolor, greyed_out_color):
+    """
+    @type cnt: int
+    @type colorize_from: str
+    @type hcnt: int
+    @type history_item: str
+    @type keyword: str
+    @type prev_cmds: list
+    @type previous_command: str
+    @type runid: str
+    @type samecnt: int
+    @type showid: bool
+    @type defcolor: int
+    @type greyed_out_color: int
+    @return: None
+    """
+    m = hashlib.md5()
+    hil = history_item.lstrip().split(" ")
+    m.update(str(hil[0:][0]).encode())
+
+    # if m.hexdigest() not in st:
+    command = " ".join(history_item.lstrip().split(" ")).strip()
+
+    if keyword is not None and runid is False:
+        if keyword not in command:
+            command = ""
+
+    command = command.strip()
+    previous_command = previous_command.strip()
+
+    if len(command.strip()) > 0:
+        num = str(hcnt)
+        dist, _ = get_distance(command, previous_command)
+        maxdist = 15
+
+        if len(command) < maxdist + 1:
+            maxdist = len(command) // 2
+
+        if " ".join(command.split()[:1]) in prev_cmds:
+            samecnt += 1
+            if samecnt == 2:
+                print("\033[90m...\033[0m")
+            elif samecnt < 2:
+                print_item(num, command, showid, 93)
+
+        elif 0 < dist < maxdist:
+            samecnt = 0
+            print_item(num, command, showid, greyed_out_color)
+        else:
+            samecnt = 0
+            print_item(num, command, showid, defcolor)
+
+        previous_command = command
+
+        while len(prev_cmds) > 10:
+            prev_cmds.popleft()
+
+        if cnt > colorize_from:
+            prev_cmds.append("".join(command.split()[:2]))
+
+    return previous_command
 
 
 def print_item(mid, command, showmid, colorcode):
@@ -65,7 +123,6 @@ def print_item(mid, command, showmid, colorcode):
     command = command.replace("    ", " ")
     command = command.replace("   ", " ")
     command = command.replace("  ", " ")
-
     midcolor = 37
     if colorcode != 93:
         midcolor = 90
@@ -111,15 +168,17 @@ def main():
     prev_cmds = deque()
     sto = open(os.path.join(os.path.expanduser("~"), ".bash_history"), "rt").read()
     newstl = []
-
     stl = []
+
     for hi in str(sto).split("\n"):
         stl.append(hi)
 
     for hi in stl:
         if hi not in newstl:
             newstl.append(hi)
+
     stl = newstl
+
     if limitnum is not None:
         limitnum = int(limitnum)
         stl = stl[len(stl) - limitnum:]
@@ -129,6 +188,23 @@ def main():
         colorize_from = 0
 
     hcnt = 0
+    default_color = 34
+    greyed_out_color = 90
+    configpath = os.path.join(os.path.expanduser("~"), ".historybashconfig")
+
+    if os.path.exists(configpath):
+        config = open(configpath, "rt").read()
+        config = config.strip().split("\n")
+
+        for line in config:
+            if "default_color" in line:
+                default_color = int(line.split(":")[-1])
+            elif "greyed_out_color" in line:
+                greyed_out_color = int(line.split(":")[-1])
+    else:
+        config = open(configpath, "wt")
+        config.write("default_color:" + str(default_color) + "\n")
+        config.write("greyed_out_color:" + str(greyed_out_color) + "\n")
 
     if runid is True:
         for cnt, history_item in enumerate(stl):
@@ -157,68 +233,11 @@ def main():
         for cnt, history_item in enumerate(stl):
             if len(history_item.strip()) > 0:
                 hcnt += 1
-                previous_command = handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cmds, previous_command, runid, samecnt, showid)
+                previous_command = handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cmds, previous_command, runid, samecnt, showid, default_color, greyed_out_color)
 
 
-def handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cmds, previous_command, runid, samecnt, showid):
-    """
-    @type cnt: int
-    @type colorize_from: str
-    @type hcnt: int
-    @type history_item: str
-    @type keyword: str
-    @type prev_cmds: list
-    @type previous_command: str
-    @type runid: str
-    @type samecnt: int
-    @type showid: str
-    @return: None
-    """
-    m = hashlib.md5()
-    hil = history_item.lstrip().split(" ")
-    m.update(str(hil[0:][0]).encode())
+standard_library.install_aliases()
 
-    # if m.hexdigest() not in st:
-    command = " ".join(history_item.lstrip().split(" ")).strip()
-
-    if keyword is not None and runid is False:
-        if keyword not in command:
-            command = ""
-
-    command = command.strip()
-    previous_command = previous_command.strip()
-
-    if len(command.strip()) > 0:
-        num = str(hcnt)
-        dist, _ = get_distance(command, previous_command)
-        maxdist = 15
-
-        if len(command) < maxdist + 1:
-            maxdist = len(command) // 2
-
-        if " ".join(command.split()[:1]) in prev_cmds:
-            samecnt += 1
-            if samecnt == 2:
-                print("\033[90m...\033[0m")
-            elif samecnt < 2:
-                print_item(num, command, showid, 93)
-
-        elif 0 < dist < maxdist:
-            samecnt = 0
-            print_item(num, command, showid, 37)
-        else:
-            samecnt = 0
-            print_item(num, command, showid, 33)
-
-        previous_command = command
-
-        while len(prev_cmds) > 10:
-            prev_cmds.popleft()
-
-        if cnt > colorize_from:
-            prev_cmds.append("".join(command.split()[:2]))
-
-    return previous_command
 
 if __name__ == "__main__":
     main()
