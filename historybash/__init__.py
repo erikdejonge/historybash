@@ -2,9 +2,6 @@
 # coding=utf-8
 """
 History bash command search wrapper
-Erik de Jonge
-erik@a8.nl
-
 license: gpl2
 
 Usage:
@@ -13,9 +10,13 @@ Usage:
 Options:
   -i --id       Show id
   -r --run      Run id
-
-  -h --help     Show this screen.
   -l --limitnum Limit results
+  -h --help     Show this screen.
+  -c --config   Show config
+
+author  : rabshakeh (erik@a8.nl)
+project : historybash
+created : 29-06-15 / 14:53
 """
 from __future__ import division, print_function, absolute_import, unicode_literals
 from future import standard_library
@@ -26,6 +27,28 @@ import hashlib
 from arguments import Arguments
 from Levenshtein import distance
 from collections import deque
+from pygments.lexers import guess_lexer, ClassNotFound
+from pygments.lexers.python import PythonLexer
+from pygments.formatters.terminal256 import Terminal256Formatter
+from pygments import highlight
+from pygments.cmdline import main
+
+
+class IArguments(Arguments):
+    """
+    IArguments
+    """
+    def __init__(self, doc):
+        """
+        __init__
+        """
+        self.config = False
+        self.help = False
+        self.id = False
+        self.keyword = ""
+        self.limitnum = False
+        self.run = False
+        super().__init__(doc)
 
 
 def get_distance(command, previous_command):
@@ -45,7 +68,6 @@ def get_distance(command, previous_command):
     # print(dist)
     # print("----")
     diff = len(command) - len(previous_command)
-
     return dist, diff
 
 
@@ -144,9 +166,7 @@ def main():
     """
     main
     """
-    arguments = Arguments(__doc__)
-
-    # print(arguments)
+    arguments = IArguments(__doc__)
     showid = arguments.id
     runid = arguments.run
     limitnum = arguments.limitnum
@@ -162,8 +182,8 @@ def main():
     if keyword:
         if len(str(keyword)) == 0:
             keyword = None
-
-    print(keyword)
+    if keyword:
+        print(keyword)
     previous_command = ""
     prev_cmds = deque()
     sto = open(os.path.join(os.path.expanduser("~"), ".bash_history"), "rt").read()
@@ -194,17 +214,34 @@ def main():
 
     if os.path.exists(configpath):
         config = open(configpath, "rt").read()
+        config = "#"+configpath+"\n"+config
+
+        if arguments.config is True:
+            try:
+                lexer = guess_lexer(config)
+            except ClassNotFound:
+                lexer = PythonLexer()
+            config = highlight(config, lexer, Terminal256Formatter(style='colorful'))
+            for line in config.split("\n"):
+               if line.strip():
+                   print("\033[33m"+line.strip()+"\033[0m")
+
+            return
+
         config = config.strip().split("\n")
 
         for line in config:
             if "default_color" in line:
-                default_color = int(line.split(":")[-1])
+                default_color = int(line.split("=")[-1])
             elif "greyed_out_color" in line:
-                greyed_out_color = int(line.split(":")[-1])
+                greyed_out_color = int(line.split("=")[-1])
     else:
+        if arguments.config is True:
+            print("\033[31m" + "no config found at", configpath, "\033[0m")
+
         config = open(configpath, "wt")
-        config.write("default_color:" + str(default_color) + "\n")
-        config.write("greyed_out_color:" + str(greyed_out_color) + "\n")
+        config.write("default_color=" + str(default_color) + "\n")
+        config.write("greyed_out_color=" + str(greyed_out_color) + "\n")
 
     if runid is True:
         for cnt, history_item in enumerate(stl):
@@ -214,18 +251,6 @@ def main():
                 if hcnt == keyword:
                     print("\033[30m" + history_item + "\033[0m")
 
-                    # script = """
-                    #     shopt -s expand_aliases
-                    #     source ~/.bash_profile
-                    #     """
-                    # script += history_item
-                    # script = "".join([x.strip()+"\n" for x in script.split("\n")]).strip()
-                    # f = open("hscript.sh", "w")
-                    # f.write(script)
-
-                    # f.close()
-                    # os.chmod("hscript.sh", stat.S_IREAD | stat.S_IWRITE | stat.S_IEXEC)
-                    # os.system("./hscript.sh; rm ./hscript.sh")
                     os.system(history_item)
     else:
         samecnt = 0
