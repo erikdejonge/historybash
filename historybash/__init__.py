@@ -23,7 +23,7 @@ from future import standard_library
 
 import os
 import hashlib
-
+import sys
 from arguments import Arguments
 from Levenshtein import distance
 from collections import deque
@@ -74,7 +74,7 @@ def get_distance(command, previous_command):
 def handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cmds, previous_command, runid, samecnt, showid, defcolor, greyed_out_color):
     """
     @type cnt: int
-    @type colorize_from: str
+    @type colorize_from: int
     @type hcnt: int
     @type history_item: str
     @type keyword: str
@@ -159,7 +159,11 @@ def print_item(mid, command, showmid, colorcode):
     if showmid is True:
         print("\033[" + str(midcolor) + "m" + str(mid) + "  \033[" + str(colorcode) + "m" + command2, "\033[0m")
     else:
-        print("\033[" + str(colorcode) + "m" + command2, "\033[0m")
+        if sys.stdout.isatty():
+
+            print("\033[" + str(colorcode) + "m" + command2, "\033[0m")
+        else:
+            print(command2)
 
 
 def main():
