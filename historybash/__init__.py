@@ -191,7 +191,11 @@ def main():
         print(keyword)
     previous_command = ""
     prev_cmds = deque()
-    sto = open(os.path.join(os.path.expanduser("~"), ".bash_history"), "rt").read()
+    try:
+        sto = open(os.path.join(os.path.expanduser("~"), ".bash_history"), "rt").read()
+    except UnicodeDecodeError:
+        sto = open(os.path.join(os.path.expanduser("~"), ".bash_history"), "rb").read()
+        sto = sto.decode(errors='replace')
     newstl = []
     stl = []
 
