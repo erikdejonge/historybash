@@ -21,7 +21,7 @@ setup(name='historybash',
       },
       packages=['historybash'],
       zip_safe=True,
-      install_requires=['sh', 'arguments', 'python-Levenshtein', 'docopt', 'ujson', 'consoleprinter', 'future'],
+      install_requires=['sh', 'arguments', 'python-Levenshtein', 'docopt', 'ujson', 'consoleprinter', 'future', 'pygments'],
       classifiers=[
           "Programming Language :: Python :: 3",
           "Development Status :: 4 - Beta ",
