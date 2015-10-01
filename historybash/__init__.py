@@ -33,6 +33,19 @@ from pygments.formatters.terminal256 import Terminal256Formatter
 from pygments import highlight
 from pygments.cmdline import main
 
+def isnumber(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+
+def mystr(s):
+    if isnumber(s):
+        s = str(s)
+    s = s.encode('ascii', 'replace').decode('ascii')
+    return s
 
 class IArguments(Arguments):
     """
@@ -53,8 +66,8 @@ class IArguments(Arguments):
 
 def get_distance(command, previous_command):
     """
-    @type command: str, unicode
-    @type previous_command: str, unicode
+    @type command: mystr, unicode
+    @type previous_command: mystr, unicode
     @return: None
     """
     previous_command = previous_command.strip()
@@ -76,11 +89,11 @@ def handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cm
     @type cnt: int
     @type colorize_from: int
     @type hcnt: int
-    @type history_item: str
-    @type keyword: str
+    @type history_item: mystr
+    @type keyword: mystr
     @type prev_cmds: list
-    @type previous_command: str
-    @type runid: str
+    @type previous_command: mystr
+    @type runid: mystr
     @type samecnt: int
     @type showid: bool
     @type defcolor: int
@@ -89,7 +102,7 @@ def handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cm
     """
     m = hashlib.md5()
     hil = history_item.lstrip().split(" ")
-    m.update(str(hil[0:][0]).encode())
+    m.update(mystr(hil[0:][0]).encode())
 
     # if m.hexdigest() not in st:
     command = " ".join(history_item.lstrip().split(" ")).strip()
@@ -102,7 +115,7 @@ def handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cm
     previous_command = previous_command.strip()
 
     if len(command.strip()) > 0:
-        num = str(hcnt)
+        num = mystr(hcnt)
         dist, _ = get_distance(command, previous_command)
         maxdist = 15
 
@@ -136,8 +149,8 @@ def handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cm
 
 def print_item(mid, command, showmid, colorcode):
     """
-    @type mid: str
-    @type command: str
+    @type mid: mystr
+    @type command: mystr
     @type showmid: bool
     @type colorcode: int
     @return: None
@@ -152,16 +165,16 @@ def print_item(mid, command, showmid, colorcode):
     maxlen = 500
 
     if len(command) >= maxlen:
-        command2 = command[:maxlen] + "..." + str(len(command) - maxlen)
+        command2 = command[:maxlen] + "..." + mystr(len(command) - maxlen)
     else:
         command2 = command
 
     if showmid is True:
-        print("\033[" + str(midcolor) + "m" + str(mid) + "  \033[" + str(colorcode) + "m" + command2, "\033[0m")
+        print("\033[" + mystr(midcolor) + "m" + mystr(mid) + "  \033[" + mystr(colorcode) + "m" + command2, "\033[0m")
     else:
         if sys.stdout.isatty():
 
-            print("\033[" + str(colorcode) + "m" + command2, "\033[0m")
+            print("\033[" + mystr(colorcode) + "m" + command2, "\033[0m")
         else:
             print(command2)
 
@@ -185,21 +198,22 @@ def main():
             return
 
     if keyword:
-        if len(str(keyword)) == 0:
+        if len(mystr(keyword)) == 0:
             keyword = None
     if keyword:
         print(keyword)
     previous_command = ""
     prev_cmds = deque()
     try:
-        sto = open(os.path.join(os.path.expanduser("~"), ".bash_history"), "rt").read()
+        sto = open(os.path.join(os.path.expanduser("~"), ".bash_history"), "rt", encoding='utf-8').read()
     except UnicodeDecodeError:
-        sto = open(os.path.join(os.path.expanduser("~"), ".bash_history"), "rb").read()
-        sto = sto.decode(errors='replace')
+        raise
+        #sto = open(os.path.join(os.path.expanduser("~"), ".bash_history"), "rb").read()
+        #sto = sto.decode(errors='replace')
     newstl = []
     stl = []
 
-    for hi in str(sto).split("\n"):
+    for hi in mystr(sto).split("\n"):
         stl.append(hi)
 
     for hi in stl:
@@ -222,7 +236,7 @@ def main():
     configpath = os.path.join(os.path.expanduser("~"), ".historybashconfig")
 
     if os.path.exists(configpath):
-        config = open(configpath, "rt").read()
+        config = open(configpath, "rt", encoding='utf-8').read()
         config = "#"+configpath+"\n"+config
 
         if arguments.config is True:
@@ -248,9 +262,9 @@ def main():
         if arguments.config is True:
             print("\033[31m" + "no config found at", configpath, "\033[0m")
 
-        config = open(configpath, "wt")
-        config.write("default_color=" + str(default_color) + "\n")
-        config.write("greyed_out_color=" + str(greyed_out_color) + "\n")
+        config = open(configpath, "wt", encoding='utf-8')
+        config.write("default_color=" + mystr(default_color) + "\n")
+        config.write("greyed_out_color=" + mystr(greyed_out_color) + "\n")
 
     if runid is True:
         for cnt, history_item in enumerate(stl):
