@@ -200,8 +200,6 @@ def main():
     if keyword:
         if len(mystr(keyword)) == 0:
             keyword = None
-    if keyword:
-        print(keyword)
     previous_command = ""
     prev_cmds = deque()
     try:
