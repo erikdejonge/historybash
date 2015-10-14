@@ -264,7 +264,7 @@ def main():
         config = open(configpath, "wt", encoding='utf-8')
         config.write("default_color=" + mystr(default_color) + "\n")
         config.write("greyed_out_color=" + mystr(greyed_out_color) + "\n")
-    hcache = os.path.expanduser("~.historybashstl")
+    hcache = os.path.expanduser("~/.historybashstl")
     if runid is True:
         if os.path.exists(hcache):
             stl = pickle.load(open(hcache, "rb"))
