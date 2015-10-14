@@ -24,6 +24,7 @@ from future import standard_library
 import os
 import hashlib
 import sys
+import pickle
 from arguments import Arguments
 from Levenshtein import distance
 from collections import deque
@@ -263,8 +264,11 @@ def main():
         config = open(configpath, "wt", encoding='utf-8')
         config.write("default_color=" + mystr(default_color) + "\n")
         config.write("greyed_out_color=" + mystr(greyed_out_color) + "\n")
-
+    hcache = os.path.expanduser("~.historybashstl")
     if runid is True:
+        if os.path.exists(hcache):
+            stl = pickle.load(open(hcache, "rb"))
+
         for cnt, history_item in enumerate(stl):
             if len(history_item.strip()) > 0:
                 hcnt += 1
@@ -274,6 +278,7 @@ def main():
 
                     os.system(history_item)
     else:
+        pickle.dump(stl, open(hcache, "wb"))
         samecnt = 0
 
         for cnt, history_item in enumerate(stl):
