@@ -49,12 +49,6 @@ class HistoryBashTest(unittest.TestCase):
         historybash.main()
         self.assertEqual(out.getvalue(), 'ls\ncd\nsudo updatedb\n')
 
-    def test_fails(self):
-        """
-        test_fails
-        """
-        self.assertTrue(False)
-
 
 def main():
     """
