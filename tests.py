@@ -14,7 +14,9 @@ standard_library.install_aliases()
 from unittester import *
 import historybash
 import sys
+
 from io import StringIO
+
 
 class HistoryBashTest(unittest.TestCase):
     """
@@ -22,13 +24,18 @@ class HistoryBashTest(unittest.TestCase):
     @return: None
     """
     def setUp(self):
-
+        """
+        setUp
+        """
         sto = open(os.path.join(os.path.expanduser("~"), ".bash_history"), "rt", encoding='utf-8').read()
         open(os.path.join(os.path.expanduser("~"), ".bash_history.bak"), "wt", encoding='utf-8').write(sto)
         sto2 = "ls\ncd\ncd\nsudo updatedb"
         open(os.path.join(os.path.expanduser("~"), ".bash_history"), "wt", encoding='utf-8').write(sto2)
 
     def tearDown(self):
+        """
+        tearDown
+        """
         sto = open(os.path.join(os.path.expanduser("~"), ".bash_history.bak"), "rt", encoding='utf-8').read()
         open(os.path.join(os.path.expanduser("~"), ".bash_history"), "wt", encoding='utf-8').write(sto)
 
@@ -40,12 +47,13 @@ class HistoryBashTest(unittest.TestCase):
         std = sys.stdout
         sys.stdout = out
         historybash.main()
+        self.assertEqual(out.getvalue(), 'ls\ncd\nsudo updatedb\n')
 
-
-
-
-        self.assertEqual(out.getvalue(),'ls\ncd\nsudo updatedb\n')
-
+    def test_fails(self):
+        """
+        test_fails
+        """
+        self.assertTrue(False)
 
 
 def main():
