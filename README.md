@@ -1,4 +1,3 @@
-
 # history
 Bash history command colorized on levenshtein distance of last 10 commands
 
