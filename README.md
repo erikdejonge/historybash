@@ -1,4 +1,3 @@
-
 # history
 Bash history command colorized on levenshtein distance of last 10 commands
 
@@ -22,3 +21,7 @@ alias hist='python ~/workspace/history/history.py'
 
 ###screenshot
 ![history](https://raw.githubusercontent.com/erikdejonge/historybash/master/res/history.png)
+
+
+
+
