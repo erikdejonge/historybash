@@ -8,11 +8,13 @@ Usage:
   history.py [options] [<keyword>... ]
 
 Options:
+  -f --forcecolor Force colored output
   -i --id       Show id
   -r --run      Run id
   -l --limitnum Limit results
   -h --help     Show this screen.
   -c --config   Show config
+
 
 author  : rabshakeh (erik@a8.nl)
 project : historybash
@@ -62,6 +64,7 @@ class IArguments(Arguments):
         self.keyword = ""
         self.limitnum = False
         self.run = False
+        self.forcecolor = False
         super().__init__(doc)
 
 
@@ -85,7 +88,7 @@ def get_distance(command, previous_command):
     return dist, diff
 
 
-def handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cmds, previous_command, runid, samecnt, showid, defcolor, greyed_out_color):
+def handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cmds, previous_command, runid, samecnt, showid, defcolor, greyed_out_color, forcecolor):
     """
     @type cnt: int
     @type colorize_from: int
@@ -128,14 +131,14 @@ def handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cm
             if samecnt == 2:
                 print("\033[90m...\033[0m")
             elif samecnt < 2:
-                print_item(num, command, showid, 93)
+                print_item(num, command, showid, 93, forcecolor)
 
         elif 0 < dist < maxdist:
             samecnt = 0
-            print_item(num, command, showid, greyed_out_color)
+            print_item(num, command, showid, greyed_out_color, forcecolor)
         else:
             samecnt = 0
-            print_item(num, command, showid, defcolor)
+            print_item(num, command, showid, defcolor, forcecolor)
 
         previous_command = command
 
@@ -148,7 +151,7 @@ def handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cm
     return previous_command
 
 
-def print_item(mid, command, showmid, colorcode):
+def print_item(mid, command, showmid, colorcode, forcecolor):
     """
     @type mid: mystr
     @type command: mystr
@@ -173,11 +176,11 @@ def print_item(mid, command, showmid, colorcode):
     if showmid is True:
         print("\033[" + mystr(midcolor) + "m" + mystr(mid) + "  \033[" + mystr(colorcode) + "m" + command2, "\033[0m")
     else:
-        if sys.stdout.isatty():
-
+        if forcecolor:
             print("\033[" + mystr(colorcode) + "m" + command2, "\033[0m")
         else:
             print(command2)
+
 
 
 def main():
@@ -189,6 +192,11 @@ def main():
     runid = arguments.run
     limitnum = arguments.limitnum
     keyword = " ".join(arguments.keyword).strip()
+
+    if not arguments.forcecolor:
+        forcecolor = sys.stdout.isatty()
+    else:
+        forcecolor = True
 
     if runid is True:
         try:
@@ -284,7 +292,8 @@ def main():
         for cnt, history_item in enumerate(stl):
             if len(history_item.strip()) > 0:
                 hcnt += 1
-                previous_command = handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cmds, previous_command, runid, samecnt, showid, default_color, greyed_out_color)
+
+                previous_command = handle_history_item(cnt, colorize_from, hcnt, history_item, keyword, prev_cmds, previous_command, runid, samecnt, showid, default_color, greyed_out_color, forcecolor)
 
 
 standard_library.install_aliases()
