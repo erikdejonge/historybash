@@ -21,6 +21,10 @@ project : historybash
 created : 29-06-15 / 14:53
 """
 from __future__ import division, print_function, absolute_import, unicode_literals
+from builtins import super
+from builtins import open
+from builtins import int
+from builtins import str
 from future import standard_library
 
 import os
