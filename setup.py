@@ -7,7 +7,7 @@ author: erik@a8.nl
 """
 from setuptools import setup
 setup(name='historybash',
-      version='78',
+      version='79',
       description='Bash history command colorized on levenshtein',
       url='https://github.com/erikdejonge/historybash',
       author='Erik de Jonge',
